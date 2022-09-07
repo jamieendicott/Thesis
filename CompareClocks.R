@@ -25,7 +25,11 @@ write.csv(p,paste0(geo,'.p.csv'))
 
 #sesame beta processing
 idat_dir = ('.')
-betas = openSesame(idat_dir, BPPARAM = BiocParallel::MulticoreParam(16))
+betas = do.call(cbind, lapply(searchIDATprefixes(idat_dir), function(pfx) {
+  getBetas(dyeBiasNL(noob(pOOBAH(readIDATpair(pfx),pval.threshold = 0.1)))) 
+}))
+dim(betas)
+
 cols<-(as.character(map(strsplit(colnames(betas), split = "_"), 1)))
 colnames(betas)<-cols
 #Horvath age estimates (sesame funciton)
@@ -35,7 +39,7 @@ p$Skinblood.age<-apply(betas,2,predictAgeSkinBlood)
 #Apply RepliTali
 download.file('https://raw.githubusercontent.com/jamieendicott/Nature_Comm_2022/main/RepliTali/RepliTali_coefs.csv','./RepliTali_coefs.csv')
 RT<-read.csv('RepliTali_coefs.csv')
-x<-betas[c(match(RT$Coefficient[-1],rownames(betas))),c(match(p$EPIC_ID,colnames(betas)))]
+x<-betas[c(match(RT$Coefficient[-1],rownames(betas))),c(match(rownames(p),colnames(betas)))]
 X<-apply(x,2,function(x) RT$Value[-1]*x)
 est.RT<-apply(X,2,function(x) sum(x, na.rm=T) +RT$Value[1])
 p$RT<-est.RT
@@ -129,7 +133,8 @@ n=mitotic.age(beta,b,c,d) ### estimated mitotic age
 names(n)=colnames(beta)
 
 p$MiAge<-n
-setwd('/secondary/projects/laird/jamie/deconvolution/')
+
+setwd(paste0('/secondary/projects/laird/jamie/GEO/',geo))
 write.csv(p,paste0(geo,'res.all.clocks.csv'))
          
          
