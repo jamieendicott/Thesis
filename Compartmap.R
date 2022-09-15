@@ -6,4 +6,5 @@ library(sesame)
 sset<-SigSetListFromPath(path = ".", parallel = FALSE, recursive = TRUE)
 RGset<-SigSetsToRGChannelSet(sset)
 b<-sesamize(RGSet)
-atac_compartments <- getCompartments(b, type = "atac", parallel = FALSE, chrs = "chr14")
+array_compartments <- getCompartments(ss2, type = "array", parallel = FALSE, chrs = "chr14")
+
