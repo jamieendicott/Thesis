@@ -12,7 +12,10 @@ library(purrr)
 #command line edit
 
 #external sets
-geo<-"GSE154446"
+setwd('/secondary/projects/laird/jamie/GEO/')
+geo<-"GSE131280"
+getGEOSuppFiles(GEO=geo, makeDirectory = TRUE, baseDir = getwd(),
+  fetch_files = FALSE)
 
 Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 100)
 g<-getGEO(geo)
@@ -35,6 +38,13 @@ colnames(betas)<-cols
 #Horvath age estimates (sesame funciton)
 p$Horv.age<-apply(betas,2,predictAgeHorvath353)
 p$Skinblood.age<-apply(betas,2,predictAgeSkinBlood)
+#measure median global methylation, median PMD methylation, median PMD solo-WCGW methylation
+p$medglobal<-apply(betas,2,median,na.rm=T)
+setwd('/secondary/projects/laird/jamie/deconvolution/')
+EPIC.comPMD<-read.delim('../manifests/EPIC.comPMD.probes.tsv',header=F)
+b<-subset(betas,rownames(betas)%in%EPIC.comPMD$V4)
+dim(b)
+p$medsoloWCGW<-apply(b,2,median,na.rm=T)
 
 #Apply RepliTali
 download.file('https://raw.githubusercontent.com/jamieendicott/Nature_Comm_2022/main/RepliTali/RepliTali_coefs.csv','./RepliTali_coefs.csv')
