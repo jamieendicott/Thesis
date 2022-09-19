@@ -33,8 +33,7 @@ betas<-subset(b,rownames(b)%in%probes$probeID)
 #also trimming down to 450K probes
 download.file('https://zhouserver.research.chop.edu/InfiniumAnnotation/20180909/HM450/HM450.hg38.manifest.tsv.gz','./HM450.hg38.manifest.tsv.gz')
 man450k<-read.delim('HM450.hg38.manifest.tsv.gz')
-betas<-b[,c(match(p$geo_accession,colnames(b)))] 
-betas<-subset(betas,rownames(betas)%in%man450k$probeID) #452453
+betas<-subset(betas,rownames(betas)%in%man450k$probeID) #25149
 
 ##Create normalization model based on chronologically youngest cell line AG06561
 samples.651<-subset(samples,samples$coriell_id=="AG06561")
@@ -83,8 +82,9 @@ y.r
 ELR.r<-glmnet(x.r,y.r,family="gaussian",alpha=0.5)
 cv.fit.ELR.r<-cv.glmnet(x.r,y.r,alpha=0.5)
 dim(extract.coef(cv.fit.ELR.r,lambda="lambda.1se"))
-#[1] 88   3 
+#[1] 72   3 
 cvfit.r<-extract.coef(cv.fit.ELR.r,lambda="lambda.1se")
+write.csv(cvfit.r,"450kRT.csv")
 
 #performance on random training set
 r.enet.betas<-subset(rtrain.betas,rownames(rtrain.betas)%in%rownames(cvfit.r))
@@ -109,10 +109,10 @@ cols<-c(AG21837="coral",AG06561="brown",
         AG21859="darkslategray3")
                 
 g<-ggplot(data=transform(dat,set=factor(set,levels=c("TRAINING","TEST"))),aes(x=adj651PDL,y=replitali))
-pdf('450kreplitali.TT.pdf')
-g+geom_point(aes(col=coriell_id),size=1.5,alpha=0.6)+theme_bw()+
+pdf('450kreplitali.TT.pdf',height=5,width=8)
+g+geom_smooth(method='lm', alpha = 0.4,col='gray')+
+  geom_point(aes(col=coriell_id),size=1.5,alpha=0.6)+theme_bw()+
   scale_color_manual(values=cols)+
-  geom_smooth(method='lm', alpha = 0.4,col='gray')+
   xlab("Observed PDs, 651 enet adjusted P1") + ylab("Predicted PDs")+facet_wrap(~set)
 dev.off()
 
