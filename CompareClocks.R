@@ -13,7 +13,7 @@ library(purrr)
 
 #external sets
 setwd('/secondary/projects/laird/jamie/GEO/')
-geo<-"GSE131280"
+geo<-"GSE197723"
 getGEOSuppFiles(GEO=geo, makeDirectory = TRUE, baseDir = getwd(),
   fetch_files = FALSE)
 
@@ -21,14 +21,14 @@ Sys.setenv("VROOM_CONNECTION_SIZE" = 131072 * 100)
 g<-getGEO(geo)
 p<-pData(g[[1]])
 #trim p as needed
-p<-p[,c(1,2,34:36)]
+p<-p[,c(1,8,42:47)]
 
 setwd(paste0('/secondary/projects/laird/jamie/GEO/',geo))
 write.csv(p,paste0(geo,'.p.csv'))
 
 #sesame beta processing
 idat_dir = ('.')
-betas = do.call(cbind, lapply(searchIDATprefixes(idat_dir), function(pfx) {
+betas = do.call(cbind, lapply(searchIDATprefixes(idat_dir)[201:317], function(pfx) {
   getBetas(dyeBiasNL(noob(pOOBAH(readIDATpair(pfx),pval.threshold = 0.1)))) 
 }))
 dim(betas)
@@ -145,6 +145,6 @@ names(n)=colnames(beta)
 p$MiAge<-n
 
 setwd(paste0('/secondary/projects/laird/jamie/GEO/',geo))
-write.csv(p,paste0(geo,'res.all.clocks.csv'))
+write.csv(p,paste0(geo,'res.all.clocks.3.csv'))
          
          
